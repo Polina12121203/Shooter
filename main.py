@@ -38,7 +38,7 @@ class Enemy(GameSprite):
     def update(self):
         self.rect.y += self.speed
         global lost
-        if self.rect.y > winH:
+        if self.rect.y > winW-30:
             self.rect.x = randint(80, winW-80)
             self.rect.y = 0
             lost += 1
@@ -64,8 +64,8 @@ game = True
 finish = False
 font.init()
 font1 = font.Font(None, 36)
-text_lose = font1.render("Пропущено: " + str(lost), 1, (255, 255, 255))
-text_count = font1.render("Рахунок: " + str(count), 1, (255, 255, 255))
+font2 = font.Font(None, 54)
+
 while game:
     for e in event.get():
         if e.type == QUIT:
@@ -73,18 +73,35 @@ while game:
         elif e.type == KEYDOWN:
             if e.key==K_SPACE :
                 hero.fire()
+            
     if not finish:
         window.blit(background, (0, 0))
+        text_lose = font1.render("Пропущено: " + str(lost), 1, (255, 255, 255))
+        text_count = font1.render("Рахунок: " + str(count), 1, (255, 255, 255))
         window.blit(text_lose, (10,25))
         window.blit(text_count, (10,55))
         hero.reset()
+        
         monsters.draw(window)
         balls.draw(window)
         balls.update()
         monsters.update()
         hero.update()
-        
+        sprite_list = sprite.groupcollide(monsters, balls, True, True)
+        for c in sprite_list:
+            count += 1
+            monster = Enemy("enemy.png", randint(80, winW-80), 0, randint(3, 5),50, 30, randint(10, 50))
+            monsters.add(monster)
+        if sprite.spritecollide(hero, monsters, False) or lost>=10:
+            finish = True
+            text_finish = font2.render("YOU LOSE", 1, (255, 255, 255))
+            window.blit(text_finish, (250,255))
+        if count>=10:
+            finish = True
+            text_finish2 = font2.render("YOU WIN", 1, (255, 255, 255))
+            window.blit(text_finish2, (250,255))
+            
+            
+            
         display.update()
     time.delay(50)
-    
-        
